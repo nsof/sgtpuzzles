@@ -32,7 +32,7 @@ android {
     defaultConfig {
         targetSdkVersion 28
         minSdkVersion 16
-        applicationId "name.boyle.chris.sgtpuzzles"
+        applicationId 'name.tenne.david.sgtpuzzles'
         versionCode 120
         versionName "${timestamp()}-${idForSimon()}"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"

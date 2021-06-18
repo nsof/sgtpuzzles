@@ -26,7 +26,7 @@ chris@boyle.name and I'll be happy to include it in future versions.
     <string name="about_content">"Simon Tatham’s Portable Puzzle Collection
 Version %s"</string>
     <!-- Things used by the Android front-end only -->
-    <string name="app_name">Puzzles</string>
+    <string name="app_name">Puzzles-David</string>
     <string name="website_url">https://chris.boyle.name/projects/android-puzzles/</string>
     <string name="author_email">chris@boyle.name</string>
     <string name="feedback_body">"

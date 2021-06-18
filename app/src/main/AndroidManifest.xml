@@ -84,7 +84,7 @@
 		</activity>
 		<provider
 			android:name=".FixedTypeFileProvider"
-			android:authorities="name.boyle.chris.sgtpuzzles.fileprovider"
+			android:authorities="name.tenne.david.sgtpuzzles.fileprovider"
 			android:exported="false"
 			android:grantUriPermissions="true">
 			<meta-data
