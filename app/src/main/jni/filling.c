@@ -71,10 +71,10 @@ static bool verbose;
 static void printv(const char *fmt, ...) {
 #ifndef PALM
     if (verbose) {
-	va_list va;
-	va_start(va, fmt);
-	vprintf(fmt, va);
-	va_end(va);
+        va_list va;
+        va_start(va, fmt);
+        vprintf(fmt, va);
+        va_end(va);
     }
 #endif
 }
@@ -100,11 +100,12 @@ struct game_state {
 };
 
 static const struct game_params filling_defaults[3] = {
-    {9, 7}, {13, 9}, {17, 13}
+        {9, 7},
+        {13, 9},
+        {17, 13}
 };
 
-static game_params *default_params(void)
-{
+static game_params *default_params(void) {
     game_params *ret = snew(game_params);
 
     *ret = filling_defaults[1]; /* struct copy */
@@ -112,8 +113,7 @@ static game_params *default_params(void)
     return ret;
 }
 
-static bool game_fetch_preset(int i, char **name, game_params **params)
-{
+static bool game_fetch_preset(int i, char **name, game_params **params) {
     char buf[64];
 
     if (i < 0 || i >= lenof(filling_defaults)) return false;
@@ -125,34 +125,29 @@ static bool game_fetch_preset(int i, char **name, game_params **params)
     return true;
 }
 
-static void free_params(game_params *params)
-{
+static void free_params(game_params *params) {
     sfree(params);
 }
 
-static game_params *dup_params(const game_params *params)
-{
+static game_params *dup_params(const game_params *params) {
     game_params *ret = snew(game_params);
     *ret = *params; /* struct copy */
     return ret;
 }
 
-static void decode_params(game_params *ret, char const *string)
-{
+static void decode_params(game_params *ret, char const *string) {
     ret->w = ret->h = atoi(string);
     while (*string && isdigit((unsigned char) *string)) ++string;
     if (*string == 'x') ret->h = atoi(++string);
 }
 
-static char *encode_params(const game_params *params, bool full)
-{
+static char *encode_params(const game_params *params, bool full) {
     char buf[64];
     sprintf(buf, "%dx%d", params->w, params->h);
     return dupstr(buf);
 }
 
-static config_item *game_configure(const game_params *params)
-{
+static config_item *game_configure(const game_params *params) {
     config_item *ret;
     char buf[64];
 
@@ -174,8 +169,7 @@ static config_item *game_configure(const game_params *params)
     return ret;
 }
 
-static game_params *custom_params(const config_item *cfg)
-{
+static game_params *custom_params(const config_item *cfg) {
     game_params *ret = snew(game_params);
 
     ret->w = atoi(cfg[0].u.string.sval);
@@ -184,8 +178,7 @@ static game_params *custom_params(const config_item *cfg)
     return ret;
 }
 
-static const char *validate_params(const game_params *params, bool full)
-{
+static const char *validate_params(const game_params *params, bool full) {
     if (params->w < 1) return _("Width must be at least one");
     if (params->h < 1) return _("Height must be at least one");
 
@@ -222,8 +215,8 @@ static const char *validate_params(const game_params *params, bool full)
  */
 static char *board_to_string(int *board, int w, int h) {
     const int sz = w * h;
-    const int chw = (4*w + 2); /* +2 for trailing '+' and '\n' */
-    const int chh = (2*h + 1); /* +1: n fence segments, n+1 posts */
+    const int chw = (4 * w + 2); /* +2 for trailing '+' and '\n' */
+    const int chh = (2 * h + 1); /* +1: n fence segments, n+1 posts */
     const int chlen = chw * chh;
     char *repr = snewn(chlen + 1, char);
     int i;
@@ -232,49 +225,47 @@ static char *board_to_string(int *board, int w, int h) {
 
     /* build the first line ("^(\+---){n}\+$") */
     for (i = 0; i < w; ++i) {
-        repr[4*i + 0] = '+';
-        repr[4*i + 1] = '-';
-        repr[4*i + 2] = '-';
-        repr[4*i + 3] = '-';
+        repr[4 * i + 0] = '+';
+        repr[4 * i + 1] = '-';
+        repr[4 * i + 2] = '-';
+        repr[4 * i + 3] = '-';
     }
-    repr[4*i + 0] = '+';
-    repr[4*i + 1] = '\n';
+    repr[4 * i + 0] = '+';
+    repr[4 * i + 1] = '\n';
 
     /* ... and copy it onto the odd-numbered lines */
-    for (i = 0; i < h; ++i) memcpy(repr + (2*i + 2) * chw, repr, chw);
+    for (i = 0; i < h; ++i) memcpy(repr + (2 * i + 2) * chw, repr, chw);
 
     /* build the second line ("^(\|\t){n}\|$") */
     for (i = 0; i < w; ++i) {
-        repr[chw + 4*i + 0] = '|';
-        repr[chw + 4*i + 1] = ' ';
-        repr[chw + 4*i + 2] = ' ';
-        repr[chw + 4*i + 3] = ' ';
+        repr[chw + 4 * i + 0] = '|';
+        repr[chw + 4 * i + 1] = ' ';
+        repr[chw + 4 * i + 2] = ' ';
+        repr[chw + 4 * i + 3] = ' ';
     }
-    repr[chw + 4*i + 0] = '|';
-    repr[chw + 4*i + 1] = '\n';
+    repr[chw + 4 * i + 0] = '|';
+    repr[chw + 4 * i + 1] = '\n';
 
     /* ... and copy it onto the even-numbered lines */
-    for (i = 1; i < h; ++i) memcpy(repr + (2*i + 1) * chw, repr + chw, chw);
+    for (i = 1; i < h; ++i) memcpy(repr + (2 * i + 1) * chw, repr + chw, chw);
 
     /* fill in the numbers */
     for (i = 0; i < sz; ++i) {
         const int x = i % w;
-	const int y = i / w;
-	if (board[i] == EMPTY) continue;
-	repr[chw*(2*y + 1) + (4*x + 2)] = board[i] + '0';
+        const int y = i / w;
+        if (board[i] == EMPTY) continue;
+        repr[chw * (2 * y + 1) + (4 * x + 2)] = board[i] + '0';
     }
 
     repr[chlen] = '\0';
     return repr;
 }
 
-static bool game_can_format_as_text_now(const game_params *params)
-{
+static bool game_can_format_as_text_now(const game_params *params) {
     return true;
 }
 
-static char *game_text_format(const game_state *state)
-{
+static char *game_text_format(const game_state *state) {
     const int w = state->shared->params.w;
     const int h = state->shared->params.h;
     return board_to_string(state->board, w, h);
@@ -287,8 +278,7 @@ static char *game_text_format(const game_state *state)
 static const int dx[4] = {-1, 1, 0, 0};
 static const int dy[4] = {0, 0, -1, 1};
 
-struct solver_state
-{
+struct solver_state {
     int *dsf;
     int *board;
     int *connected;
@@ -301,13 +291,14 @@ struct solver_state
 
 static void print_board(int *board, int w, int h) {
     if (verbose) {
-	char *repr = board_to_string(board, w, h);
-	printv("%s\n", repr);
-	free(repr);
+        char *repr = board_to_string(board, w, h);
+        printv("%s\n", repr);
+        free(repr);
     }
 }
 
 static game_state *new_game(midend *, const game_params *, const char *);
+
 static void free_game(game_state *);
 
 #define SENTINEL sz
@@ -318,7 +309,7 @@ static bool mark_region(int *board, int w, int h, int i, int n, int m) {
     board[i] = -1;
 
     for (j = 0; j < 4; ++j) {
-        const int x = (i % w) + dx[j], y = (i / w) + dy[j], ii = w*y + x;
+        const int x = (i % w) + dx[j], y = (i / w) + dy[j], ii = w * y + x;
         if (x < 0 || x >= w || y < 0 || y >= h) continue;
         if (board[ii] == m) return false;
         if (board[ii] != n) continue;
@@ -341,8 +332,7 @@ static int region_size(int *board, int w, int h, int i) {
     return size;
 }
 
-static void merge_ones(int *board, int w, int h)
-{
+static void merge_ones(int *board, int w, int h) {
     const int sz = w * h;
     const int maxsize = min(max(max(w, h), 3), 9);
     int i, j, k;
@@ -354,8 +344,8 @@ static void merge_ones(int *board, int w, int h)
 
             for (j = 0; j < 4; ++j, board[i] = 1) {
                 const int x = (i % w) + dx[j], y = (i / w) + dy[j];
-                int oldsize, newsize, ii = w*y + x;
-		bool ok;
+                int oldsize, newsize, ii = w * y + x;
+                bool ok;
 
                 if (x < 0 || x >= w || y < 0 || y >= h) continue;
                 if (board[ii] == maxsize) continue;
@@ -402,9 +392,9 @@ static void make_board(int *board, int w, int h, random_state *rs) {
     for (i = 0; i < sz; ++i) board[i] = i;
 
     dsf = snewn(sz, int);
-retry:
+    retry:
     dsf_init(dsf, sz);
-    shuffle(board, sz, sizeof (int), rs);
+    shuffle(board, sz, sizeof(int), rs);
 
     do {
         change = false; /* as long as the board potentially has errors */
@@ -412,7 +402,7 @@ retry:
             const int square = dsf_canonify(dsf, board[i]);
             const int size = dsf_size(dsf, square);
             int merge = SENTINEL, min = maxsize - size + 1;
-	    bool error = false;
+            bool error = false;
             int neighbour, neighbour_size, j;
 
             for (j = 0; j < 4; ++j) {
@@ -420,7 +410,7 @@ retry:
                 const int y = (board[i] / w) + dy[j];
                 if (x < 0 || x >= w || y < 0 || y >= h) continue;
 
-                neighbour = dsf_canonify(dsf, w*y + x);
+                neighbour = dsf_canonify(dsf, w * y + x);
                 if (square == neighbour) continue;
 
                 neighbour_size = dsf_size(dsf, neighbour);
@@ -482,13 +472,13 @@ static void expand(struct solver_state *s, int w, int h, int t, int f) {
     assert(s->board[t] == EMPTY); /* expand to empty square */
     assert(s->board[f] != EMPTY); /* expand from non-empty square */
     printv(
-	"learn: expanding %d from (%d, %d) into (%d, %d)\n",
-	s->board[f], f % w, f / w, t % w, t / w);
+            "learn: expanding %d from (%d, %d) into (%d, %d)\n",
+            s->board[f], f % w, f / w, t % w, t / w);
     s->board[t] = s->board[f];
     for (j = 0; j < 4; ++j) {
         const int x = (t % w) + dx[j];
         const int y = (t / w) + dy[j];
-        const int idx = w*y + x;
+        const int idx = w * y + x;
         if (x < 0 || x >= w || y < 0 || y >= h) continue;
         if (s->board[idx] != s->board[t]) continue;
         merge(s->dsf, s->connected, t, idx);
@@ -518,10 +508,10 @@ static void flood_count(int *board, int w, int h, int i, int n, int *c) {
     for (k = 0; k < 4; ++k) {
         const int x = (i % w) + dx[k];
         const int y = (i / w) + dy[k];
-        const int idx = w*y + x;
+        const int idx = w * y + x;
         if (x < 0 || x >= w || y < 0 || y >= h) continue;
         flood_count(board, w, h, idx, n, c);
-	if (*c == 0) return;
+        if (*c == 0) return;
     }
 }
 
@@ -540,7 +530,7 @@ static int expandsize(const int *board, int *dsf, int w, int h, int i, int n) {
     for (j = 0; j < 4; ++j) {
         const int x = (i % w) + dx[j];
         const int y = (i / w) + dy[j];
-        const int idx = w*y + x;
+        const int idx = w * y + x;
         int root;
         int m;
         if (x < 0 || x >= w || y < 0 || y >= h) continue;
@@ -548,7 +538,7 @@ static int expandsize(const int *board, int *dsf, int w, int h, int i, int n) {
         root = dsf_canonify(dsf, idx);
         for (m = 0; m < nhits && root != hits[m]; ++m);
         if (m < nhits) continue;
-	printv("\t  (%d, %d) contrib %d to size\n", x, y, dsf[root] >> 2);
+        printv("\t  (%d, %d) contrib %d to size\n", x, y, dsf[root] >> 2);
         size += dsf_size(dsf, root);
         assert(dsf_size(dsf, root) >= 1);
         hits[nhits++] = root;
@@ -609,12 +599,12 @@ static int expandsize(const int *board, int *dsf, int w, int h, int i, int n) {
 static void filled_square(struct solver_state *s, int w, int h, int i) {
     int j;
     for (j = 0; j < 4; ++j) {
-	const int x = (i % w) + dx[j];
-	const int y = (i / w) + dy[j];
-	const int idx = w*y + x;
-	if (x < 0 || x >= w || y < 0 || y >= h) continue;
-	if (s->board[i] == s->board[idx])
-	    merge(s->dsf, s->connected, i, idx);
+        const int x = (i % w) + dx[j];
+        const int y = (i / w) + dy[j];
+        const int idx = w * y + x;
+        if (x < 0 || x >= w || y < 0 || y >= h) continue;
+        if (s->board[i] == s->board[idx])
+            merge(s->dsf, s->connected, i, idx);
     }
 }
 
@@ -638,44 +628,44 @@ static bool learn_expand_or_one(struct solver_state *s, int w, int h) {
     assert(s);
 
     for (i = 0; i < sz; ++i) {
-	int j;
-	bool one = true;
+        int j;
+        bool one = true;
 
-	if (s->board[i] != EMPTY) continue;
+        if (s->board[i] != EMPTY) continue;
 
-	for (j = 0; j < 4; ++j) {
-	    const int x = (i % w) + dx[j];
-	    const int y = (i / w) + dy[j];
-	    const int idx = w*y + x;
-	    if (x < 0 || x >= w || y < 0 || y >= h) continue;
-	    if (s->board[idx] == EMPTY) {
-		one = false;
-		continue;
-	    }
-	    if (one &&
-		(s->board[idx] == 1 ||
-		 (s->board[idx] >= expandsize(s->board, s->dsf, w, h,
-					      i, s->board[idx]))))
-		one = false;
-	    if (dsf_size(s->dsf, idx) == s->board[idx]) continue;
-	    assert(s->board[i] == EMPTY);
-	    s->board[i] = -SENTINEL;
-	    if (check_capacity(s->board, w, h, idx)) continue;
-	    assert(s->board[i] == EMPTY);
-	    printv("learn: expanding in one\n");
-	    expand(s, w, h, i, idx);
-	    learn = true;
-	    break;
-	}
+        for (j = 0; j < 4; ++j) {
+            const int x = (i % w) + dx[j];
+            const int y = (i / w) + dy[j];
+            const int idx = w * y + x;
+            if (x < 0 || x >= w || y < 0 || y >= h) continue;
+            if (s->board[idx] == EMPTY) {
+                one = false;
+                continue;
+            }
+            if (one &&
+                (s->board[idx] == 1 ||
+                 (s->board[idx] >= expandsize(s->board, s->dsf, w, h,
+                                              i, s->board[idx]))))
+                one = false;
+            if (dsf_size(s->dsf, idx) == s->board[idx]) continue;
+            assert(s->board[i] == EMPTY);
+            s->board[i] = -SENTINEL;
+            if (check_capacity(s->board, w, h, idx)) continue;
+            assert(s->board[i] == EMPTY);
+            printv("learn: expanding in one\n");
+            expand(s, w, h, i, idx);
+            learn = true;
+            break;
+        }
 
-	if (j == 4 && one) {
-	    printv("learn: one at (%d, %d)\n", i % w, i / w);
-	    assert(s->board[i] == EMPTY);
-	    s->board[i] = 1;
-	    assert(s->nempty);
-	    --s->nempty;
-	    learn = true;
-	}
+        if (j == 4 && one) {
+            printv("learn: one at (%d, %d)\n", i % w, i / w);
+            assert(s->board[i] == EMPTY);
+            s->board[i] = 1;
+            assert(s->nempty);
+            --s->nempty;
+            learn = true;
+        }
     }
     return learn;
 }
@@ -691,7 +681,7 @@ static bool learn_blocked_expansion(struct solver_state *s, int w, int h) {
         int exp = SENTINEL;
         int j;
 
-	if (s->board[i] == EMPTY) continue;
+        if (s->board[i] == EMPTY) continue;
         j = dsf_canonify(s->dsf, i);
 
         /* (but only for each connected component) */
@@ -709,7 +699,7 @@ static bool learn_blocked_expansion(struct solver_state *s, int w, int h) {
             for (k = 0; k < 4; ++k) {
                 const int x = (j % w) + dx[k];
                 const int y = (j / w) + dy[k];
-                const int idx = w*y + x;
+                const int idx = w * y + x;
                 int size;
                 /* int l;
                    int nhits = 0;
@@ -760,13 +750,12 @@ static bool learn_blocked_expansion(struct solver_state *s, int w, int h) {
         } while (j != i);
         /* end: for each square j _in_ the connected component */
 
-	if (exp == SENTINEL) continue;
-	printv("learning to expand\n");
-	expand(s, w, h, exp, i);
-	learn = true;
+        if (exp == SENTINEL) continue;
+        printv("learning to expand\n");
+        expand(s, w, h, exp, i);
+        learn = true;
 
-        next_i:
-        ;
+        next_i:;
     }
     /* end: for each connected component */
     return learn;
@@ -780,37 +769,37 @@ static bool learn_critical_square(struct solver_state *s, int w, int h) {
 
     /* for each connected component */
     for (i = 0; i < sz; ++i) {
-	int j, slack;
-	if (s->board[i] == EMPTY) continue;
-	if (i != dsf_canonify(s->dsf, i)) continue;
-	slack = s->board[i] - dsf_size(s->dsf, i);
-	if (slack == 0) continue;
-	assert(s->board[i] != 1);
-	/* for each empty square */
-	for (j = 0; j < sz; ++j) {
-	    if (s->board[j] == EMPTY) {
-		/* if it's too far away from the CC, don't bother */
-		int k = i, jx = j % w, jy = j / w;
-		do {
-		    int kx = k % w, ky = k / w;
-		    if (abs(kx - jx) + abs(ky - jy) <= slack) break;
-		    k = s->connected[k];
-		} while (i != k);
-		if (i == k) continue; /* not within range */
-	    } else continue;
-	    s->board[j] = -SENTINEL;
-	    if (check_capacity(s->board, w, h, i)) continue;
-	    /* if not expanding s->board[i] to s->board[j] implies
-	     * that s->board[i] can't reach its full size, ... */
-	    assert(s->nempty);
-	    printv(
-		"learn: ds %d at (%d, %d) blocking (%d, %d)\n",
-		s->board[i], j % w, j / w, i % w, i / w);
-	    --s->nempty;
-	    s->board[j] = s->board[i];
-	    filled_square(s, w, h, j);
-	    learn = true;
-	}
+        int j, slack;
+        if (s->board[i] == EMPTY) continue;
+        if (i != dsf_canonify(s->dsf, i)) continue;
+        slack = s->board[i] - dsf_size(s->dsf, i);
+        if (slack == 0) continue;
+        assert(s->board[i] != 1);
+        /* for each empty square */
+        for (j = 0; j < sz; ++j) {
+            if (s->board[j] == EMPTY) {
+                /* if it's too far away from the CC, don't bother */
+                int k = i, jx = j % w, jy = j / w;
+                do {
+                    int kx = k % w, ky = k / w;
+                    if (abs(kx - jx) + abs(ky - jy) <= slack) break;
+                    k = s->connected[k];
+                } while (i != k);
+                if (i == k) continue; /* not within range */
+            } else continue;
+            s->board[j] = -SENTINEL;
+            if (check_capacity(s->board, w, h, i)) continue;
+            /* if not expanding s->board[i] to s->board[j] implies
+             * that s->board[i] can't reach its full size, ... */
+            assert(s->nempty);
+            printv(
+                    "learn: ds %d at (%d, %d) blocking (%d, %d)\n",
+                    s->board[i], j % w, j / w, i % w, i / w);
+            --s->nempty;
+            s->board[j] = s->board[i];
+            filled_square(s, w, h, j);
+            learn = true;
+        }
     }
     return learn;
 }
@@ -818,19 +807,18 @@ static bool learn_critical_square(struct solver_state *s, int w, int h) {
 #if 0
 static void print_bitmap(int *bitmap, int w, int h) {
     if (verbose) {
-	int x, y;
-	for (y = 0; y < h; y++) {
-	    for (x = 0; x < w; x++) {
-		printv(" %03x", bm[y*w+x]);
-	    }
-	    printv("\n");
-	}
+    int x, y;
+    for (y = 0; y < h; y++) {
+        for (x = 0; x < w; x++) {
+        printv(" %03x", bm[y*w+x]);
+        }
+        printv("\n");
+    }
     }
 }
 #endif
 
-static bool learn_bitmap_deductions(struct solver_state *s, int w, int h)
-{
+static bool learn_bitmap_deductions(struct solver_state *s, int w, int h) {
     const int sz = w * h;
     int *bm = s->bm;
     int *dsf = s->bmdsf;
@@ -887,8 +875,8 @@ static bool learn_bitmap_deductions(struct solver_state *s, int w, int h)
      * all squares'.
      */
     for (y = 0; y < h; y++)
-	for (x = 0; x < w; x++)
-	    bm[y*w+x] = (1 << 10) - (1 << 1); /* bits 1,2,...,9 now set */
+        for (x = 0; x < w; x++)
+            bm[y * w + x] = (1 << 10) - (1 << 1); /* bits 1,2,...,9 now set */
 #if 0
     printv("initial bitmap:\n");
     print_bitmap(bm, w, h);
@@ -903,23 +891,23 @@ static bool learn_bitmap_deductions(struct solver_state *s, int w, int h)
      * we consider first).
      */
     for (y = 0; y < h; y++) {
-	for (x = 0; x < w; x++) {
-	    i = y*w+x;
-	    n = s->board[i];
+        for (x = 0; x < w; x++) {
+            i = y * w + x;
+            n = s->board[i];
 
-	    if (n != EMPTY) {
-		bm[i] = 0;
+            if (n != EMPTY) {
+                bm[i] = 0;
 
-		if (x > 0)
-		    bm[i-1] &= ~(1 << n);
-		if (x+1 < w)
-		    bm[i+1] &= ~(1 << n);
-		if (y > 0)
-		    bm[i-w] &= ~(1 << n);
-		if (y+1 < h)
-		    bm[i+w] &= ~(1 << n);
-	    }
-	}
+                if (x > 0)
+                    bm[i - 1] &= ~(1 << n);
+                if (x + 1 < w)
+                    bm[i + 1] &= ~(1 << n);
+                if (y > 0)
+                    bm[i - w] &= ~(1 << n);
+                if (y + 1 < h)
+                    bm[i + w] &= ~(1 << n);
+            }
+        }
     }
 #if 0
     printv("bitmap after filled squares:\n");
@@ -933,22 +921,22 @@ static bool learn_bitmap_deductions(struct solver_state *s, int w, int h)
      * have a completely new n-region in it.
      */
     for (n = 1; n <= 9; n++) {
-	dsf_init(dsf, sz);
+        dsf_init(dsf, sz);
 
-	/* Build the dsf */
-	for (y = 0; y < h; y++)
-	    for (x = 0; x+1 < w; x++)
-		if (bm[y*w+x] & bm[y*w+(x+1)] & (1 << n))
-		    dsf_merge(dsf, y*w+x, y*w+(x+1));
-	for (y = 0; y+1 < h; y++)
-	    for (x = 0; x < w; x++)
-		if (bm[y*w+x] & bm[(y+1)*w+x] & (1 << n))
-		    dsf_merge(dsf, y*w+x, (y+1)*w+x);
+        /* Build the dsf */
+        for (y = 0; y < h; y++)
+            for (x = 0; x + 1 < w; x++)
+                if (bm[y * w + x] & bm[y * w + (x + 1)] & (1 << n))
+                    dsf_merge(dsf, y * w + x, y * w + (x + 1));
+        for (y = 0; y + 1 < h; y++)
+            for (x = 0; x < w; x++)
+                if (bm[y * w + x] & bm[(y + 1) * w + x] & (1 << n))
+                    dsf_merge(dsf, y * w + x, (y + 1) * w + x);
 
-	/* Query the dsf */
-	for (i = 0; i < sz; i++)
-	    if ((bm[i] & (1 << n)) && dsf_size(dsf, i) < n)
-		bm[i] &= ~(1 << n);
+        /* Query the dsf */
+        for (i = 0; i < sz; i++)
+            if ((bm[i] & (1 << n)) && dsf_size(dsf, i) < n)
+                bm[i] &= ~(1 << n);
     }
 #if 0
     printv("bitmap after winnowing small components:\n");
@@ -961,73 +949,73 @@ static bool learn_bitmap_deductions(struct solver_state *s, int w, int h)
      * squares which could be part of an existing region.
      */
     for (n = 1; n <= 9; n++) {
-	/*
-	 * We're going to do a breadth-first search starting from
-	 * existing connected components with cell value n, to find
-	 * all cells they might possibly extend into.
-	 *
-	 * The quantity we compute, for each square, is 'minimum size
-	 * that any existing CC would have to have if extended to
-	 * include this square'. So squares already _in_ an existing
-	 * CC are initialised to the size of that CC; then we search
-	 * outwards using the rule that if a square's score is j, then
-	 * its neighbours can't score more than j+1.
-	 *
-	 * Scores are capped at n+1, because if a square scores more
-	 * than n then that's enough to know it can't possibly be
-	 * reached by extending an existing region - we don't need to
-	 * know exactly _how far_ out of reach it is.
-	 */
-	for (i = 0; i < sz; i++) {
-	    if (s->board[i] == n) {
-		/* Square is part of an existing CC. */
-		minsize[i] = dsf_size(s->dsf, i);
-	    } else {
-		/* Otherwise, initialise to the maximum score n+1;
-		 * we'll reduce this later if we find a neighbouring
-		 * square with a lower score. */
-		minsize[i] = n+1;
-	    }
-	}
+        /*
+         * We're going to do a breadth-first search starting from
+         * existing connected components with cell value n, to find
+         * all cells they might possibly extend into.
+         *
+         * The quantity we compute, for each square, is 'minimum size
+         * that any existing CC would have to have if extended to
+         * include this square'. So squares already _in_ an existing
+         * CC are initialised to the size of that CC; then we search
+         * outwards using the rule that if a square's score is j, then
+         * its neighbours can't score more than j+1.
+         *
+         * Scores are capped at n+1, because if a square scores more
+         * than n then that's enough to know it can't possibly be
+         * reached by extending an existing region - we don't need to
+         * know exactly _how far_ out of reach it is.
+         */
+        for (i = 0; i < sz; i++) {
+            if (s->board[i] == n) {
+                /* Square is part of an existing CC. */
+                minsize[i] = dsf_size(s->dsf, i);
+            } else {
+                /* Otherwise, initialise to the maximum score n+1;
+                 * we'll reduce this later if we find a neighbouring
+                 * square with a lower score. */
+                minsize[i] = n + 1;
+            }
+        }
 
-	for (j = 1; j < n; j++) {
-	    /*
-	     * Find neighbours of cells scoring j, and set their score
-	     * to at most j+1.
-	     *
-	     * Doing the BFS this way means we need n passes over the
-	     * grid, which isn't entirely optimal but it seems to be
-	     * fast enough for the moment. This could probably be
-	     * improved by keeping a linked-list queue of cells in
-	     * some way, but I think you'd have to be a bit careful to
-	     * insert things into the right place in the queue; this
-	     * way is easier not to get wrong.
-	     */
-	    for (y = 0; y < h; y++) {
-		for (x = 0; x < w; x++) {
-		    i = y*w+x;
-		    if (minsize[i] == j) {
-			if (x > 0 && minsize[i-1] > j+1)
-			    minsize[i-1] = j+1;
-			if (x+1 < w && minsize[i+1] > j+1)
-			    minsize[i+1] = j+1;
-			if (y > 0 && minsize[i-w] > j+1)
-			    minsize[i-w] = j+1;
-			if (y+1 < h && minsize[i+w] > j+1)
-			    minsize[i+w] = j+1;
-		    }
-		}
-	    }
-	}
+        for (j = 1; j < n; j++) {
+            /*
+             * Find neighbours of cells scoring j, and set their score
+             * to at most j+1.
+             *
+             * Doing the BFS this way means we need n passes over the
+             * grid, which isn't entirely optimal but it seems to be
+             * fast enough for the moment. This could probably be
+             * improved by keeping a linked-list queue of cells in
+             * some way, but I think you'd have to be a bit careful to
+             * insert things into the right place in the queue; this
+             * way is easier not to get wrong.
+             */
+            for (y = 0; y < h; y++) {
+                for (x = 0; x < w; x++) {
+                    i = y * w + x;
+                    if (minsize[i] == j) {
+                        if (x > 0 && minsize[i - 1] > j + 1)
+                            minsize[i - 1] = j + 1;
+                        if (x + 1 < w && minsize[i + 1] > j + 1)
+                            minsize[i + 1] = j + 1;
+                        if (y > 0 && minsize[i - w] > j + 1)
+                            minsize[i - w] = j + 1;
+                        if (y + 1 < h && minsize[i + w] > j + 1)
+                            minsize[i + w] = j + 1;
+                    }
+                }
+            }
+        }
 
-	/*
-	 * Now, every cell scoring at most n should have its 1<<n bit
-	 * in the bitmap reinstated, because we've found that it's
-	 * potentially reachable by extending an existing CC.
-	 */
-	for (i = 0; i < sz; i++)
-	    if (minsize[i] <= n)
-		bm[i] |= 1<<n;
+        /*
+         * Now, every cell scoring at most n should have its 1<<n bit
+         * in the bitmap reinstated, because we've found that it's
+         * potentially reachable by extending an existing CC.
+         */
+        for (i = 0; i < sz; i++)
+            if (minsize[i] <= n)
+                bm[i] |= 1 << n;
     }
 #if 0
     printv("bitmap after bfs:\n");
@@ -1040,32 +1028,44 @@ static bool learn_bitmap_deductions(struct solver_state *s, int w, int h)
      * case we can fill that number in.
      */
     for (i = 0; i < sz; i++) {
-	if (bm[i] && !(bm[i] & (bm[i]-1))) { /* is bm[i] a power of two? */
-	    int val = bm[i];
+        if (bm[i] && !(bm[i] & (bm[i] - 1))) { /* is bm[i] a power of two? */
+            int val = bm[i];
 
-	    /* Integer log2, by simple binary search. */
-	    n = 0;
-	    if (val >> 8) { val >>= 8; n += 8; }
-	    if (val >> 4) { val >>= 4; n += 4; }
-	    if (val >> 2) { val >>= 2; n += 2; }
-	    if (val >> 1) { val >>= 1; n += 1; }
+            /* Integer log2, by simple binary search. */
+            n = 0;
+            if (val >> 8) {
+                val >>= 8;
+                n += 8;
+            }
+            if (val >> 4) {
+                val >>= 4;
+                n += 4;
+            }
+            if (val >> 2) {
+                val >>= 2;
+                n += 2;
+            }
+            if (val >> 1) {
+                val >>= 1;
+                n += 1;
+            }
 
-	    /* Double-check that we ended up with a sensible
-	     * answer. */
-	    assert(1 <= n);
-	    assert(n <= 9);
-	    assert(bm[i] == (1 << n));
+            /* Double-check that we ended up with a sensible
+             * answer. */
+            assert(1 <= n);
+            assert(n <= 9);
+            assert(bm[i] == (1 << n));
 
-	    if (s->board[i] == EMPTY) {
-		printv("learn: %d is only possibility at (%d, %d)\n",
-		       n, i % w, i / w);
-		s->board[i] = n;
-		filled_square(s, w, h, i);
-		assert(s->nempty);
-		--s->nempty;
-		learn = true;
-	    }
-	}
+            if (s->board[i] == EMPTY) {
+                printv("learn: %d is only possibility at (%d, %d)\n",
+                       n, i % w, i / w);
+                s->board[i] = n;
+                filled_square(s, w, h, i);
+                assert(s->nempty);
+                --s->nempty;
+                learn = true;
+            }
+        }
     }
 
     return learn;
@@ -1075,7 +1075,7 @@ static bool solver(const int *orig, int w, int h, char **solution) {
     const int sz = w * h;
 
     struct solver_state ss;
-    ss.board = memdup(orig, sz, sizeof (int));
+    ss.board = memdup(orig, sz, sizeof(int));
     ss.dsf = snew_dsf(sz); /* eqv classes: connected components */
     ss.connected = snewn(sz, int); /* connected[n] := n.next; */
     /* cyclic disjoint singly linked lists, same partitioning as dsf.
@@ -1089,11 +1089,11 @@ static bool solver(const int *orig, int w, int h, char **solution) {
 
     init_solver_state(&ss, w, h);
     do {
-	if (learn_blocked_expansion(&ss, w, h)) continue;
-	if (learn_expand_or_one(&ss, w, h)) continue;
-	if (learn_critical_square(&ss, w, h)) continue;
-	if (learn_bitmap_deductions(&ss, w, h)) continue;
-	break;
+        if (learn_blocked_expansion(&ss, w, h)) continue;
+        if (learn_expand_or_one(&ss, w, h)) continue;
+        if (learn_critical_square(&ss, w, h)) continue;
+        if (learn_bitmap_deductions(&ss, w, h)) continue;
+        break;
     } while (ss.nempty);
 
     printv("best guess:\n");
@@ -1133,7 +1133,7 @@ static int *make_dsf(int *dsf, int *board, const int w, const int h) {
         for (j = 0; j < 4; ++j) {
             const int x = (i % w) + dx[j];
             const int y = (i / w) + dy[j];
-            const int k = w*y + x;
+            const int k = w * y + x;
             if (x < 0 || x >= w || y < 0 || y >= h) continue;
             if (board[i] == board[k]) dsf_merge(dsf, i, k);
         }
@@ -1141,14 +1141,13 @@ static int *make_dsf(int *dsf, int *board, const int w, const int h) {
     return dsf;
 }
 
-static void minimize_clue_set(int *board, int w, int h, random_state *rs)
-{
+static void minimize_clue_set(int *board, int w, int h, random_state *rs) {
     const int sz = w * h;
     int *shuf = snewn(sz, int), i;
     int *dsf, *next;
 
     for (i = 0; i < sz; ++i) shuf[i] = i;
-    shuffle(shuf, sz, sizeof (int), rs);
+    shuffle(shuf, sz, sizeof(int), rs);
 
     /*
      * First, try to eliminate an entire region at a time if possible,
@@ -1162,23 +1161,23 @@ static void minimize_clue_set(int *board, int w, int h, random_state *rs)
     dsf = make_dsf(NULL, board, w, h);
     next = snewn(sz, int);
     for (i = 0; i < sz; ++i) {
-	int j = dsf_canonify(dsf, i);
-	if (i == j) {
-	    /* First cell of a region; set next[i] = -1 to indicate
-	     * end-of-list. */
-	    next[i] = -1;
-	} else {
-	    /* Add this cell to a region which already has a
-	     * linked-list head, by pointing the canonical element j
-	     * at this one, and pointing this one in turn at wherever
-	     * j previously pointed. (This should end up with the
-	     * elements linked in the order 1,n,n-1,n-2,...,2, which
-	     * is a bit weird-looking, but any order is fine.)
-	     */
-	    assert(j < i);
-	    next[i] = next[j];
-	    next[j] = i;
-	}
+        int j = dsf_canonify(dsf, i);
+        if (i == j) {
+            /* First cell of a region; set next[i] = -1 to indicate
+             * end-of-list. */
+            next[i] = -1;
+        } else {
+            /* Add this cell to a region which already has a
+             * linked-list head, by pointing the canonical element j
+             * at this one, and pointing this one in turn at wherever
+             * j previously pointed. (This should end up with the
+             * elements linked in the order 1,n,n-1,n-2,...,2, which
+             * is a bit weird-looking, but any order is fine.)
+             */
+            assert(j < i);
+            next[i] = next[j];
+            next[j] = i;
+        }
     }
 
     /*
@@ -1197,24 +1196,24 @@ static void minimize_clue_set(int *board, int w, int h, random_state *rs)
      * if we can.
      */
     for (i = 0; i < sz; ++i) {
-	int j = dsf_canonify(dsf, shuf[i]);
-	if (next[j] != -2) {
-	    int tmp = board[j];
-	    int k;
+        int j = dsf_canonify(dsf, shuf[i]);
+        if (next[j] != -2) {
+            int tmp = board[j];
+            int k;
 
-	    /* Blank out the whole thing. */
-	    for (k = j; k >= 0; k = next[k])
-		board[k] = EMPTY;
+            /* Blank out the whole thing. */
+            for (k = j; k >= 0; k = next[k])
+                board[k] = EMPTY;
 
-	    if (!solver(board, w, h, NULL)) {
-		/* Wasn't still solvable; reinstate it all */
-		for (k = j; k >= 0; k = next[k])
-		    board[k] = tmp;
-	    }
+            if (!solver(board, w, h, NULL)) {
+                /* Wasn't still solvable; reinstate it all */
+                for (k = j; k >= 0; k = next[k])
+                    board[k] = tmp;
+            }
 
-	    /* Either way, don't try this region again. */
-	    next[j] = -2;
-	}
+            /* Either way, don't try this region again. */
+            next[j] = -2;
+        }
     }
     sfree(next);
     sfree(dsf);
@@ -1232,19 +1231,17 @@ static void minimize_clue_set(int *board, int w, int h, random_state *rs)
     sfree(shuf);
 }
 
-static int encode_run(char *buffer, int run)
-{
+static int encode_run(char *buffer, int run) {
     int i = 0;
     for (; run > 26; run -= 26)
-	buffer[i++] = 'z';
+        buffer[i++] = 'z';
     if (run)
-	buffer[i++] = 'a' - 1 + run;
+        buffer[i++] = 'a' - 1 + run;
     return i;
 }
 
 static char *new_game_desc(const game_params *params, random_state *rs,
-                           char **aux, bool interactive)
-{
+                           char **aux, bool interactive) {
     const int w = params->w, h = params->h, sz = w * h;
     int *board = snewn(sz, int), i, j, run;
     char *description = snewn(sz + 1, char);
@@ -1255,13 +1252,13 @@ static char *new_game_desc(const game_params *params, random_state *rs,
     for (run = j = i = 0; i < sz; ++i) {
         assert(board[i] >= 0);
         assert(board[i] < 10);
-	if (board[i] == 0) {
-	    ++run;
-	} else {
-	    j += encode_run(description + j, run);
-	    run = 0;
-	    description[j++] = board[i] + '0';
-	}
+        if (board[i] == 0) {
+            ++run;
+        } else {
+            j += encode_run(description + j, run);
+            run = 0;
+            description[j++] = board[i] + '0';
+        }
     }
     j += encode_run(description + j, run);
     description[j++] = '\0';
@@ -1271,40 +1268,37 @@ static char *new_game_desc(const game_params *params, random_state *rs,
     return sresize(description, j, char);
 }
 
-static const char *validate_desc(const game_params *params, const char *desc)
-{
+static const char *validate_desc(const game_params *params, const char *desc) {
     const int sz = params->w * params->h;
     const char m = '0' + max(max(params->w, params->h), 3);
     int area;
 
     for (area = 0; *desc; ++desc) {
-	if (*desc >= 'a' && *desc <= 'z') area += *desc - 'a' + 1;
-	else if (*desc >= '0' && *desc <= m) ++area;
-	else {
-	    static char s[] =    "Invalid character '%""' in game description";
-	    int n = sprintf(s, _("Invalid character '%1c' in game description"),
-			    *desc);
-	    assert(n + 1 <= lenof(s)); /* +1 for the terminating NUL */
-	    return s;
-	}
-	if (area > sz) return _("Too much data to fit in grid");
+        if (*desc >= 'a' && *desc <= 'z') area += *desc - 'a' + 1;
+        else if (*desc >= '0' && *desc <= m) ++area;
+        else {
+            static char s[] = "Invalid character '%""' in game description";
+            int n = sprintf(s, _("Invalid character '%1c' in game description"),
+                            *desc);
+            assert(n + 1 <= lenof(s)); /* +1 for the terminating NUL */
+            return s;
+        }
+        if (area > sz) return _("Too much data to fit in grid");
     }
     return (area < sz) ? _("Not enough data to fill grid") : NULL;
 }
 
-static key_label *game_request_keys(const game_params *params, int *nkeys, int *arrow_mode)
-{
+static key_label *game_request_keys(const game_params *params, int *nkeys, int *arrow_mode) {
     int i;
     key_label *keys = snewn(11, key_label);
 
     *nkeys = 11;
     *arrow_mode = ANDROID_ARROWS_LEFT_RIGHT;
 
-    for(i = 1; i < 10; ++i)
-    {
-        keys[i-1].button = '0' + i;
-        keys[i-1].label = NULL;
-        keys[i-1].needs_arrows = false;
+    for (i = 1; i < 10; ++i) {
+        keys[i - 1].button = '0' + i;
+        keys[i - 1].label = NULL;
+        keys[i - 1].needs_arrows = false;
     }
     keys[9].button = '0';
     keys[9].label = NULL;
@@ -1318,8 +1312,7 @@ static key_label *game_request_keys(const game_params *params, int *nkeys, int *
 }
 
 static game_state *new_game(midend *me, const game_params *params,
-                            const char *desc)
-{
+                            const char *desc) {
     game_state *state = snew(game_state);
     int sz = params->w * params->h;
     int i;
@@ -1332,23 +1325,22 @@ static game_state *new_game(midend *me, const game_params *params,
     state->shared->clues = snewn(sz, int);
 
     for (i = 0; *desc; ++desc) {
-	if (*desc >= 'a' && *desc <= 'z') {
-	    int j = *desc - 'a' + 1;
-	    assert(i + j <= sz);
-	    for (; j; --j) state->shared->clues[i++] = 0;
-	} else state->shared->clues[i++] = *desc - '0';
+        if (*desc >= 'a' && *desc <= 'z') {
+            int j = *desc - 'a' + 1;
+            assert(i + j <= sz);
+            for (; j; --j) state->shared->clues[i++] = 0;
+        } else state->shared->clues[i++] = *desc - '0';
     }
-    state->board = memdup(state->shared->clues, sz, sizeof (int));
+    state->board = memdup(state->shared->clues, sz, sizeof(int));
 
     return state;
 }
 
-static game_state *dup_game(const game_state *state)
-{
+static game_state *dup_game(const game_state *state) {
     const int sz = state->shared->params.w * state->shared->params.h;
     game_state *ret = snew(game_state);
 
-    ret->board = memdup(state->board, sz, sizeof (int));
+    ret->board = memdup(state->board, sz, sizeof(int));
     ret->shared = state->shared;
     ret->cheated = state->cheated;
     ret->completed = state->completed;
@@ -1357,8 +1349,7 @@ static game_state *dup_game(const game_state *state)
     return ret;
 }
 
-static void free_game(game_state *state)
-{
+static void free_game(game_state *state) {
     assert(state);
     sfree(state->board);
     if (--state->shared->refcnt == 0) {
@@ -1369,15 +1360,14 @@ static void free_game(game_state *state)
 }
 
 static char *solve_game(const game_state *state, const game_state *currstate,
-                        const char *aux, const char **error)
-{
+                        const char *aux, const char **error) {
     if (aux == NULL) {
         const int w = state->shared->params.w;
         const int h = state->shared->params.h;
-	char *new_aux;
+        char *new_aux;
         if (!solver(state->board, w, h, &new_aux))
             *error = _("Sorry, I couldn't find a solution");
-	return new_aux;
+        return new_aux;
     }
     return dupstr(aux);
 }
@@ -1393,44 +1383,37 @@ struct game_ui {
     int selected_digit;
 };
 
-static game_ui *new_ui(const game_state *state)
-{
+static game_ui *new_ui(const game_state *state) {
     game_ui *ui = snew(game_ui);
 
     ui->sel = NULL;
     ui->cur_x = ui->cur_y = 0;
     ui->cur_visible = false;
     ui->keydragging = false;
-
-    int selected_digit = 0;
+    ui->selected_digit = 0;
 
     return ui;
 }
 
-static void free_ui(game_ui *ui)
-{
+static void free_ui(game_ui *ui) {
     if (ui->sel)
         sfree(ui->sel);
     sfree(ui);
 }
 
-static char *encode_ui(const game_ui *ui)
-{
+static char *encode_ui(const game_ui *ui) {
     return NULL;
 }
 
-static void decode_ui(game_ui *ui, const char *encoding)
-{
+static void decode_ui(game_ui *ui, const char *encoding) {
 }
 
-static void android_cursor_visibility(game_ui *ui, int visible)
-{
+static void android_cursor_visibility(game_ui *ui, int visible) {
     ui->cur_visible = visible;
 }
 
 static void game_changed_state(game_ui *ui, const game_state *oldstate,
-                               const game_state *newstate)
-{
+                               const game_state *newstate) {
     /* Clear any selection */
     if (ui->sel) {
         sfree(ui->sel);
@@ -1438,7 +1421,9 @@ static void game_changed_state(game_ui *ui, const game_state *oldstate,
     }
     ui->keydragging = false;
 #ifdef ANDROID
-    if (newstate->completed && ! newstate->cheated && oldstate && ! oldstate->completed) android_completed();
+    if (newstate->completed && !newstate->cheated && oldstate &&
+        !oldstate->completed)
+        android_completed();
 #endif
 }
 
@@ -1457,8 +1442,7 @@ struct game_drawstate {
 
 static char *interpret_move(const game_state *state, game_ui *ui,
                             const game_drawstate *ds,
-                            int x, int y, int button)
-{
+                            int x, int y, int button) {
     const int w = state->shared->params.w;
     const int h = state->shared->params.h;
 
@@ -1489,11 +1473,11 @@ static char *interpret_move(const game_state *state, game_ui *ui,
         }
         if (tx >= 0 && tx < w && ty >= 0 && ty < h) {
             if (!ui->sel) {
-                ui->sel = snewn(w*h, bool);
-                memset(ui->sel, 0, w*h*sizeof(bool));
+                ui->sel = snewn(w * h, bool);
+                memset(ui->sel, 0, w * h * sizeof(bool));
             }
-            if (!state->shared->clues[w*ty+tx])
-                ui->sel[w*ty+tx] = true;
+            if (!state->shared->clues[w * ty + tx])
+                ui->sel[w * ty + tx] = true;
         }
 #ifdef ANDROID
         ui->cur_x = tx;
@@ -1507,7 +1491,7 @@ static char *interpret_move(const game_state *state, game_ui *ui,
     if (IS_CURSOR_MOVE(button)) {
         ui->cur_visible = true;
         move_cursor(button, &ui->cur_x, &ui->cur_y, w, h, false);
-	if (ui->keydragging) goto select_square;
+        if (ui->keydragging) goto select_square;
         return UI_UPDATE;
     }
     if (button == CURSOR_SELECT) {
@@ -1515,43 +1499,43 @@ static char *interpret_move(const game_state *state, game_ui *ui,
             ui->cur_visible = true;
             return UI_UPDATE;
         }
-	ui->keydragging = !ui->keydragging;
-	if (!ui->keydragging) return UI_UPDATE;
+        ui->keydragging = !ui->keydragging;
+        if (!ui->keydragging) return UI_UPDATE;
 
-      select_square:
+        select_square:
         if (!ui->sel) {
-            ui->sel = snewn(w*h, bool);
-            memset(ui->sel, 0, w*h*sizeof(bool));
+            ui->sel = snewn(w * h, bool);
+            memset(ui->sel, 0, w * h * sizeof(bool));
         }
-	if (!state->shared->clues[w*ui->cur_y + ui->cur_x])
-	    ui->sel[w*ui->cur_y + ui->cur_x] = true;
-	return UI_UPDATE;
+        if (!state->shared->clues[w * ui->cur_y + ui->cur_x])
+            ui->sel[w * ui->cur_y + ui->cur_x] = true;
+        return UI_UPDATE;
     }
     if (button == CURSOR_SELECT2) {
-	if (!ui->cur_visible) {
-	    ui->cur_visible = true;
-	    return UI_UPDATE;
-	}
-        if (!ui->sel) {
-            ui->sel = snewn(w*h, bool);
-            memset(ui->sel, 0, w*h*sizeof(bool));
+        if (!ui->cur_visible) {
+            ui->cur_visible = true;
+            return UI_UPDATE;
         }
-	ui->keydragging = false;
-	if (!state->shared->clues[w*ui->cur_y + ui->cur_x])
-	    ui->sel[w*ui->cur_y + ui->cur_x] ^= 1;
-	for (i = 0; i < w*h && !ui->sel[i]; i++);
-	if (i == w*h) {
-	    sfree(ui->sel);
-	    ui->sel = NULL;
-	}
-	return UI_UPDATE;
+        if (!ui->sel) {
+            ui->sel = snewn(w * h, bool);
+            memset(ui->sel, 0, w * h * sizeof(bool));
+        }
+        ui->keydragging = false;
+        if (!state->shared->clues[w * ui->cur_y + ui->cur_x])
+            ui->sel[w * ui->cur_y + ui->cur_x] ^= 1;
+        for (i = 0; i < w * h && !ui->sel[i]; i++);
+        if (i == w * h) {
+            sfree(ui->sel);
+            ui->sel = NULL;
+        }
+        return UI_UPDATE;
     }
 
     if (button == '\b' || button == 27) {
-	sfree(ui->sel);
-	ui->sel = NULL;
-	ui->keydragging = false;
-	return UI_UPDATE;
+        sfree(ui->sel);
+        ui->sel = NULL;
+        ui->keydragging = false;
+        return UI_UPDATE;
     }
 
     if (button < '0' || button > '9') return NULL;
@@ -1559,18 +1543,18 @@ static char *interpret_move(const game_state *state, game_ui *ui,
     if (button > (w == 2 && h == 2 ? 3 : max(w, h))) return NULL;
     ui->keydragging = false;
 
-    for (i = 0; i < w*h; i++) {
+    for (i = 0; i < w * h; i++) {
         char buf[32];
         if ((ui->sel && ui->sel[i]) ||
-            (!ui->sel && ui->cur_visible && (w*ui->cur_y+ui->cur_x) == i)) {
+            (!ui->sel && ui->cur_visible && (w * ui->cur_y + ui->cur_x) == i)) {
             if (state->shared->clues[i] != 0) continue; /* in case cursor is on clue */
             if (state->board[i] != button) {
                 sprintf(buf, "%s%d", move ? "," : "", i);
                 if (move) {
-                    move = srealloc(move, strlen(move)+strlen(buf)+1);
+                    move = srealloc(move, strlen(move) + strlen(buf) + 1);
                     strcat(move, buf);
                 } else {
-                    move = smalloc(strlen(buf)+1);
+                    move = smalloc(strlen(buf) + 1);
                     strcpy(move, buf);
                 }
             }
@@ -1579,7 +1563,7 @@ static char *interpret_move(const game_state *state, game_ui *ui,
     if (move) {
         char buf[32];
         sprintf(buf, "_%d", button);
-        move = srealloc(move, strlen(move)+strlen(buf)+1);
+        move = srealloc(move, strlen(move) + strlen(buf) + 1);
         strcat(move, buf);
     }
     if (!ui->sel) return move ? move : NULL;
@@ -1589,8 +1573,7 @@ static char *interpret_move(const game_state *state, game_ui *ui,
     return move ? move : UI_UPDATE;
 }
 
-static game_state *execute_move(const game_state *state, const char *move)
-{
+static game_state *execute_move(const game_state *state, const char *move) {
     game_state *new_state = NULL;
     const int sz = state->shared->params.w * state->shared->params.h;
 
@@ -1603,8 +1586,8 @@ static game_state *execute_move(const game_state *state, const char *move)
         int value;
         char *endptr, *delim = strchr(move, '_');
         if (!delim) goto err;
-        value = strtol(delim+1, &endptr, 0);
-        if (*endptr || endptr == delim+1) goto err;
+        value = strtol(delim + 1, &endptr, 0);
+        if (*endptr || endptr == delim + 1) goto err;
         if (value < 0 || value > 9) goto err;
         new_state = dup_game(state);
         while (*move) {
@@ -1635,7 +1618,7 @@ static game_state *execute_move(const game_state *state, const char *move)
 
     return new_state;
 
-err:
+    err:
     if (new_state) free_game(new_state);
     return NULL;
 }
@@ -1660,20 +1643,17 @@ enum {
 };
 
 static void game_compute_size(const game_params *params, int tilesize,
-                              int *x, int *y)
-{
+                              int *x, int *y) {
     *x = (params->w + 1) * tilesize;
     *y = (params->h + 1) * tilesize;
 }
 
 static void game_set_size(drawing *dr, game_drawstate *ds,
-                          const game_params *params, int tilesize)
-{
+                          const game_params *params, int tilesize) {
     ds->tilesize = tilesize;
 }
 
-static float *game_colours(frontend *fe, int *ncolours)
-{
+static float *game_colours(frontend *fe, int *ncolours) {
     float *ret = snewn(3 * NCOLOURS, float);
 
     frontend_default_colour(fe, &ret[COL_BACKGROUND * 3]);
@@ -1710,8 +1690,7 @@ static float *game_colours(frontend *fe, int *ncolours)
     return ret;
 }
 
-static game_drawstate *game_new_drawstate(drawing *dr, const game_state *state)
-{
+static game_drawstate *game_new_drawstate(drawing *dr, const game_state *state) {
     struct game_drawstate *ds = snew(struct game_drawstate);
     int i;
 
@@ -1721,15 +1700,14 @@ static game_drawstate *game_new_drawstate(drawing *dr, const game_state *state)
     ds->v = snewn(ds->params.w * ds->params.h, int);
     ds->flags = snewn(ds->params.w * ds->params.h, int);
     for (i = 0; i < ds->params.w * ds->params.h; i++)
-	ds->v[i] = ds->flags[i] = -1;
+        ds->v[i] = ds->flags[i] = -1;
     ds->border_scratch = snewn(ds->params.w * ds->params.h, int);
     ds->dsf_scratch = NULL;
 
     return ds;
 }
 
-static void game_free_drawstate(drawing *dr, game_drawstate *ds)
-{
+static void game_free_drawstate(drawing *dr, game_drawstate *ds) {
     sfree(ds->v);
     sfree(ds->flags);
     sfree(ds->border_scratch);
@@ -1753,38 +1731,37 @@ static void game_free_drawstate(drawing *dr, game_drawstate *ds)
 #define SELECTED_DIGIT_SQ  0x2000
 
 static void draw_square(drawing *dr, game_drawstate *ds, int x, int y,
-                        int n, int flags)
-{
+                        int n, int flags) {
     assert(dr);
     assert(ds);
 
     /*
      * Clip to the grid square.
      */
-    clip(dr, BORDER + x*TILE_SIZE, BORDER + y*TILE_SIZE,
-	 TILE_SIZE, TILE_SIZE);
+    clip(dr, BORDER + x * TILE_SIZE, BORDER + y * TILE_SIZE,
+         TILE_SIZE, TILE_SIZE);
 
     /*
      * Clear the square.
      */
     draw_rect(dr,
-              BORDER + x*TILE_SIZE,
-              BORDER + y*TILE_SIZE,
+              BORDER + x * TILE_SIZE,
+              BORDER + y * TILE_SIZE,
               TILE_SIZE,
               TILE_SIZE,
               (
                       flags & SELECTED_DIGIT_SQ ? COL_SELECTED_DIGIT :
-                    flags & HIGH_BG ? COL_HIGHLIGHT :
-                    flags & ERROR_BG ? COL_ERROR :
-                    flags & CORRECT_BG ? COL_CORRECT : COL_BACKGROUND));
+                      flags & HIGH_BG ? COL_HIGHLIGHT :
+                      flags & ERROR_BG ? COL_ERROR :
+                      flags & CORRECT_BG ? COL_CORRECT : COL_BACKGROUND));
 
     /*
      * Draw the grid lines.
      */
-    draw_line(dr, BORDER + x*TILE_SIZE, BORDER + y*TILE_SIZE,
-	      BORDER + (x+1)*TILE_SIZE, BORDER + y*TILE_SIZE, COL_GRID);
-    draw_line(dr, BORDER + x*TILE_SIZE, BORDER + y*TILE_SIZE,
-	      BORDER + x*TILE_SIZE, BORDER + (y+1)*TILE_SIZE, COL_GRID);
+    draw_line(dr, BORDER + x * TILE_SIZE, BORDER + y * TILE_SIZE,
+              BORDER + (x + 1) * TILE_SIZE, BORDER + y * TILE_SIZE, COL_GRID);
+    draw_line(dr, BORDER + x * TILE_SIZE, BORDER + y * TILE_SIZE,
+              BORDER + x * TILE_SIZE, BORDER + (y + 1) * TILE_SIZE, COL_GRID);
 
     /*
      * Draw the number.
@@ -1808,84 +1785,83 @@ static void draw_square(drawing *dr, game_drawstate *ds, int x, int y,
      */
     if (flags & BORDER_L)
         draw_rect(dr,
-                  BORDER + x*TILE_SIZE + 1,
-                  BORDER + y*TILE_SIZE + 1,
+                  BORDER + x * TILE_SIZE + 1,
+                  BORDER + y * TILE_SIZE + 1,
                   BORDER_WIDTH,
                   TILE_SIZE - 1,
                   COL_GRID);
     if (flags & BORDER_U)
         draw_rect(dr,
-                  BORDER + x*TILE_SIZE + 1,
-                  BORDER + y*TILE_SIZE + 1,
+                  BORDER + x * TILE_SIZE + 1,
+                  BORDER + y * TILE_SIZE + 1,
                   TILE_SIZE - 1,
                   BORDER_WIDTH,
                   COL_GRID);
     if (flags & BORDER_R)
         draw_rect(dr,
-                  BORDER + (x+1)*TILE_SIZE - BORDER_WIDTH,
-                  BORDER + y*TILE_SIZE + 1,
+                  BORDER + (x + 1) * TILE_SIZE - BORDER_WIDTH,
+                  BORDER + y * TILE_SIZE + 1,
                   BORDER_WIDTH,
                   TILE_SIZE - 1,
                   COL_GRID);
     if (flags & BORDER_D)
         draw_rect(dr,
-                  BORDER + x*TILE_SIZE + 1,
-                  BORDER + (y+1)*TILE_SIZE - BORDER_WIDTH,
+                  BORDER + x * TILE_SIZE + 1,
+                  BORDER + (y + 1) * TILE_SIZE - BORDER_WIDTH,
                   TILE_SIZE - 1,
                   BORDER_WIDTH,
                   COL_GRID);
     if (flags & BORDER_UL)
         draw_rect(dr,
-                  BORDER + x*TILE_SIZE + 1,
-                  BORDER + y*TILE_SIZE + 1,
+                  BORDER + x * TILE_SIZE + 1,
+                  BORDER + y * TILE_SIZE + 1,
                   BORDER_WIDTH,
                   BORDER_WIDTH,
                   COL_GRID);
     if (flags & BORDER_UR)
         draw_rect(dr,
-                  BORDER + (x+1)*TILE_SIZE - BORDER_WIDTH,
-                  BORDER + y*TILE_SIZE + 1,
+                  BORDER + (x + 1) * TILE_SIZE - BORDER_WIDTH,
+                  BORDER + y * TILE_SIZE + 1,
                   BORDER_WIDTH,
                   BORDER_WIDTH,
                   COL_GRID);
     if (flags & BORDER_DL)
         draw_rect(dr,
-                  BORDER + x*TILE_SIZE + 1,
-                  BORDER + (y+1)*TILE_SIZE - BORDER_WIDTH,
+                  BORDER + x * TILE_SIZE + 1,
+                  BORDER + (y + 1) * TILE_SIZE - BORDER_WIDTH,
                   BORDER_WIDTH,
                   BORDER_WIDTH,
                   COL_GRID);
     if (flags & BORDER_DR)
         draw_rect(dr,
-                  BORDER + (x+1)*TILE_SIZE - BORDER_WIDTH,
-                  BORDER + (y+1)*TILE_SIZE - BORDER_WIDTH,
+                  BORDER + (x + 1) * TILE_SIZE - BORDER_WIDTH,
+                  BORDER + (y + 1) * TILE_SIZE - BORDER_WIDTH,
                   BORDER_WIDTH,
                   BORDER_WIDTH,
                   COL_GRID);
 
     if (flags & CURSOR_SQ) {
-        int coff = TILE_SIZE/8;
+        int coff = TILE_SIZE / 8;
         draw_rect_outline(dr,
-                          BORDER + x*TILE_SIZE + coff,
-                          BORDER + y*TILE_SIZE + coff,
-                          TILE_SIZE - coff*2,
-                          TILE_SIZE - coff*2,
+                          BORDER + x * TILE_SIZE + coff,
+                          BORDER + y * TILE_SIZE + coff,
+                          TILE_SIZE - coff * 2,
+                          TILE_SIZE - coff * 2,
                           COL_CURSOR);
     }
 
     unclip(dr);
 
     draw_update(dr,
-		BORDER + x*TILE_SIZE,
-		BORDER + y*TILE_SIZE,
-		TILE_SIZE,
-		TILE_SIZE);
+                BORDER + x * TILE_SIZE,
+                BORDER + y * TILE_SIZE,
+                TILE_SIZE,
+                TILE_SIZE);
 }
 
 static void draw_grid(
-    drawing *dr, game_drawstate *ds, const game_state *state,
-    const game_ui *ui, bool flashy, bool borders, bool shading)
-{
+        drawing *dr, game_drawstate *ds, const game_state *state,
+        const game_ui *ui, bool flashy, bool borders, bool shading) {
     const int w = state->shared->params.w;
     const int h = state->shared->params.h;
     int x;
@@ -1900,8 +1876,8 @@ static void draw_grid(
     /*
      * Work out where we're putting borders between the cells.
      */
-    for (y = 0; y < w*h; y++)
-	ds->border_scratch[y] = 0;
+    for (y = 0; y < w * h; y++)
+        ds->border_scratch[y] = 0;
 
     for (y = 0; y < h; y++)
         for (x = 0; x < w; x++) {
@@ -1913,13 +1889,13 @@ static void draw_grid(
 
                 dy = 1 - dx;
 
-                if (x+dx >= w || y+dy >= h)
+                if (x + dx >= w || y + dy >= h)
                     continue;
 
-                v1 = state->board[y*w+x];
-                v2 = state->board[(y+dy)*w+(x+dx)];
-                s1 = dsf_size(ds->dsf_scratch, y*w+x);
-                s2 = dsf_size(ds->dsf_scratch, (y+dy)*w+(x+dx));
+                v1 = state->board[y * w + x];
+                v2 = state->board[(y + dy) * w + (x + dx)];
+                s1 = dsf_size(ds->dsf_scratch, y * w + x);
+                s2 = dsf_size(ds->dsf_scratch, (y + dy) * w + (x + dx));
 
                 /*
                  * We only ever draw a border between two cells if
@@ -1945,7 +1921,7 @@ static void draw_grid(
                 }
 
                 if (border)
-                    ds->border_scratch[y*w+x] |= (dx ? 1 : 2);
+                    ds->border_scratch[y * w + x] |= (dx ? 1 : 2);
             }
         }
 
@@ -1985,7 +1961,7 @@ static void draw_grid(
                     flags |= ERROR_BG;
                     noflag:;
                 }
-                if (v == ui->selected_digit) {
+                if (ui && v == ui->selected_digit) {
                     flags |= SELECTED_DIGIT_SQ;
                 }
             }
@@ -2000,44 +1976,44 @@ static void draw_grid(
                 flags |= BORDER_L;
             if (y == 0)
                 flags |= BORDER_U;
-            if (x == w-1)
+            if (x == w - 1)
                 flags |= BORDER_R;
-            if (y == h-1)
+            if (y == h - 1)
                 flags |= BORDER_D;
 
             if (borders) {
-                if (x == 0 || (ds->border_scratch[y*w+(x-1)] & 1))
+                if (x == 0 || (ds->border_scratch[y * w + (x - 1)] & 1))
                     flags |= BORDER_L;
-                if (y == 0 || (ds->border_scratch[(y-1)*w+x] & 2))
+                if (y == 0 || (ds->border_scratch[(y - 1) * w + x] & 2))
                     flags |= BORDER_U;
-                if (x == w-1 || (ds->border_scratch[y*w+x] & 1))
+                if (x == w - 1 || (ds->border_scratch[y * w + x] & 1))
                     flags |= BORDER_R;
-                if (y == h-1 || (ds->border_scratch[y*w+x] & 2))
+                if (y == h - 1 || (ds->border_scratch[y * w + x] & 2))
                     flags |= BORDER_D;
 
-                if (y > 0 && x > 0 && (ds->border_scratch[(y-1)*w+(x-1)]))
+                if (y > 0 && x > 0 && (ds->border_scratch[(y - 1) * w + (x - 1)]))
                     flags |= BORDER_UL;
-                if (y > 0 && x < w-1 &&
-                    ((ds->border_scratch[(y-1)*w+x] & 1) ||
-                     (ds->border_scratch[(y-1)*w+(x+1)] & 2)))
+                if (y > 0 && x < w - 1 &&
+                    ((ds->border_scratch[(y - 1) * w + x] & 1) ||
+                     (ds->border_scratch[(y - 1) * w + (x + 1)] & 2)))
                     flags |= BORDER_UR;
-                if (y < h-1 && x > 0 &&
-                    ((ds->border_scratch[y*w+(x-1)] & 2) ||
-                     (ds->border_scratch[(y+1)*w+(x-1)] & 1)))
+                if (y < h - 1 && x > 0 &&
+                    ((ds->border_scratch[y * w + (x - 1)] & 2) ||
+                     (ds->border_scratch[(y + 1) * w + (x - 1)] & 1)))
                     flags |= BORDER_DL;
-                if (y < h-1 && x < w-1 &&
-                    ((ds->border_scratch[y*w+(x+1)] & 2) ||
-                     (ds->border_scratch[(y+1)*w+x] & 1)))
+                if (y < h - 1 && x < w - 1 &&
+                    ((ds->border_scratch[y * w + (x + 1)] & 2) ||
+                     (ds->border_scratch[(y + 1) * w + x] & 1)))
                     flags |= BORDER_DR;
             }
 
-            if (!state->shared->clues[y*w+x])
+            if (!state->shared->clues[y * w + x])
                 flags |= USER_COL;
 
-            if (ds->v[y*w+x] != v || ds->flags[y*w+x] != flags) {
+            if (ds->v[y * w + x] != v || ds->flags[y * w + x] != flags) {
                 draw_square(dr, ds, x, y, v, flags);
-                ds->v[y*w+x] = v;
-                ds->flags[y*w+x] = flags;
+                ds->v[y * w + x] = v;
+                ds->flags[y * w + x] = flags;
             }
         }
 }
@@ -2045,14 +2021,13 @@ static void draw_grid(
 static void game_redraw(drawing *dr, game_drawstate *ds,
                         const game_state *oldstate, const game_state *state,
                         int dir, const game_ui *ui,
-                        float animtime, float flashtime)
-{
+                        float animtime, float flashtime) {
     const int w = state->shared->params.w;
     const int h = state->shared->params.h;
 
     const bool flashy =
-        flashtime > 0 &&
-        (flashtime <= FLASH_TIME/3 || flashtime >= FLASH_TIME*2/3);
+            flashtime > 0 &&
+            (flashtime <= FLASH_TIME / 3 || flashtime >= FLASH_TIME * 2 / 3);
 
     if (!ds->started) {
         /*
@@ -2061,18 +2036,18 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
          * should start by drawing a big background-colour rectangle
          * covering the whole window.
          */
-        draw_rect(dr, 0, 0, w*TILE_SIZE + 2*BORDER, h*TILE_SIZE + 2*BORDER,
+        draw_rect(dr, 0, 0, w * TILE_SIZE + 2 * BORDER, h * TILE_SIZE + 2 * BORDER,
                   COL_BACKGROUND);
 
-	/*
-	 * Smaller black rectangle which is the main grid.
-	 */
-	draw_rect(dr, BORDER - BORDER_WIDTH, BORDER - BORDER_WIDTH,
-		  w*TILE_SIZE + 2*BORDER_WIDTH + 1,
-		  h*TILE_SIZE + 2*BORDER_WIDTH + 1,
-		  COL_GRID);
+        /*
+         * Smaller black rectangle which is the main grid.
+         */
+        draw_rect(dr, BORDER - BORDER_WIDTH, BORDER - BORDER_WIDTH,
+                  w * TILE_SIZE + 2 * BORDER_WIDTH + 1,
+                  h * TILE_SIZE + 2 * BORDER_WIDTH + 1,
+                  COL_GRID);
 
-        draw_update(dr, 0, 0, w*TILE_SIZE + 2*BORDER, h*TILE_SIZE + 2*BORDER);
+        draw_update(dr, 0, 0, w * TILE_SIZE + 2 * BORDER, h * TILE_SIZE + 2 * BORDER);
 
         ds->started = true;
     }
@@ -2081,31 +2056,27 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
 }
 
 static float game_anim_length(const game_state *oldstate,
-                              const game_state *newstate, int dir, game_ui *ui)
-{
+                              const game_state *newstate, int dir, game_ui *ui) {
     return 0.0F;
 }
 
 static float game_flash_length(const game_state *oldstate,
-                               const game_state *newstate, int dir, game_ui *ui)
-{
+                               const game_state *newstate, int dir, game_ui *ui) {
     assert(oldstate);
     assert(newstate);
     assert(newstate->shared);
     assert(oldstate->shared == newstate->shared);
     if (!oldstate->completed && newstate->completed &&
-	!oldstate->cheated && !newstate->cheated)
+        !oldstate->cheated && !newstate->cheated)
         return FLASH_TIME;
     return 0.0F;
 }
 
-static int game_status(const game_state *state)
-{
+static int game_status(const game_state *state) {
     return state->completed ? +1 : 0;
 }
 
-static bool game_timing_state(const game_state *state, game_ui *ui)
-{
+static bool game_timing_state(const game_state *state, game_ui *ui) {
     return true;
 }
 
@@ -2175,45 +2146,45 @@ static void game_print(drawing *dr, const game_state *state, int tilesize)
 #endif
 
 const struct game thegame = {
-    "Filling", "games.filling", "filling",
-    default_params,
-    game_fetch_preset, NULL,
-    decode_params,
-    encode_params,
-    free_params,
-    dup_params,
-    true, game_configure, custom_params,
-    validate_params,
-    new_game_desc,
-    validate_desc,
-    new_game,
-    dup_game,
-    free_game,
-    true, solve_game,
-    true, game_can_format_as_text_now, game_text_format,
-    new_ui,
-    free_ui,
-    encode_ui,
-    decode_ui,
-    game_request_keys,
-    android_cursor_visibility,
-    game_changed_state,
-    interpret_move,
-    execute_move,
-    PREFERRED_TILE_SIZE, game_compute_size, game_set_size,
-    game_colours,
-    game_new_drawstate,
-    game_free_drawstate,
-    game_redraw,
-    game_anim_length,
-    game_flash_length,
-    game_status,
+        "Filling", "games.filling", "filling",
+        default_params,
+        game_fetch_preset, NULL,
+        decode_params,
+        encode_params,
+        free_params,
+        dup_params,
+        true, game_configure, custom_params,
+        validate_params,
+        new_game_desc,
+        validate_desc,
+        new_game,
+        dup_game,
+        free_game,
+        true, solve_game,
+        true, game_can_format_as_text_now, game_text_format,
+        new_ui,
+        free_ui,
+        encode_ui,
+        decode_ui,
+        game_request_keys,
+        android_cursor_visibility,
+        game_changed_state,
+        interpret_move,
+        execute_move,
+        PREFERRED_TILE_SIZE, game_compute_size, game_set_size,
+        game_colours,
+        game_new_drawstate,
+        game_free_drawstate,
+        game_redraw,
+        game_anim_length,
+        game_flash_length,
+        game_status,
 #ifndef NO_PRINTING
-    true, false, game_print_size, game_print,
+        true, false, game_print_size, game_print,
 #endif
-    false,				   /* wants_statusbar */
-    false, game_timing_state,
-    REQUIRE_NUMPAD,		       /* flags */
+        false,                   /* wants_statusbar */
+        false, game_timing_state,
+        REQUIRE_NUMPAD,               /* flags */
 };
 
 #ifdef STANDALONE_SOLVER /* solver? hah! */
