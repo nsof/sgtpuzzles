@@ -1390,6 +1390,7 @@ struct game_ui {
     bool *sel; /* w*h highlighted squares, or NULL */
     int cur_x, cur_y;
     bool cur_visible, keydragging;
+    int selected_digit;
 };
 
 static game_ui *new_ui(const game_state *state)
@@ -1400,6 +1401,8 @@ static game_ui *new_ui(const game_state *state)
     ui->cur_x = ui->cur_y = 0;
     ui->cur_visible = false;
     ui->keydragging = false;
+
+    int selected_digit = 0;
 
     return ui;
 }
@@ -1476,6 +1479,12 @@ static char *interpret_move(const game_state *state, game_ui *ui,
             if (ui->sel) {
                 sfree(ui->sel);
                 ui->sel = NULL;
+            }
+            if (ui->selected_digit != 0) {
+                ui->selected_digit = 0;
+            }
+            if (tx >= 0 && tx < w && ty >= 0 && ty < h && state->shared->clues[w * ty + tx]) {
+                ui->selected_digit = state->board[w * ty + tx];
             }
         }
         if (tx >= 0 && tx < w && ty >= 0 && ty < h) {
@@ -1646,6 +1655,7 @@ enum {
     COL_ERROR,
     COL_USER,
     COL_CURSOR,
+    COL_SELECTED_DIGIT,
     NCOLOURS
 };
 
@@ -1692,6 +1702,10 @@ static float *game_colours(frontend *fe, int *ncolours)
     ret[COL_USER * 3 + 1] = 0.6F * ret[COL_BACKGROUND * 3 + 1];
     ret[COL_USER * 3 + 2] = 0.0F;
 
+    ret[COL_SELECTED_DIGIT * 3 + 0] = 0.8F * ret[COL_BACKGROUND * 3 + 0];
+    ret[COL_SELECTED_DIGIT * 3 + 1] = 0.8F * ret[COL_BACKGROUND * 3 + 1];
+    ret[COL_SELECTED_DIGIT * 3 + 2] = 1.0F * ret[COL_BACKGROUND * 3 + 2];
+
     *ncolours = NCOLOURS;
     return ret;
 }
@@ -1736,6 +1750,7 @@ static void game_free_drawstate(drawing *dr, game_drawstate *ds)
 #define ERROR_BG   0x400
 #define USER_COL   0x800
 #define CURSOR_SQ 0x1000
+#define SELECTED_DIGIT_SQ  0x2000
 
 static void draw_square(drawing *dr, game_drawstate *ds, int x, int y,
                         int n, int flags)
@@ -1757,9 +1772,11 @@ static void draw_square(drawing *dr, game_drawstate *ds, int x, int y,
               BORDER + y*TILE_SIZE,
               TILE_SIZE,
               TILE_SIZE,
-              (flags & HIGH_BG ? COL_HIGHLIGHT :
-               flags & ERROR_BG ? COL_ERROR :
-               flags & CORRECT_BG ? COL_CORRECT : COL_BACKGROUND));
+              (
+                      flags & SELECTED_DIGIT_SQ ? COL_SELECTED_DIGIT :
+                    flags & HIGH_BG ? COL_HIGHLIGHT :
+                    flags & ERROR_BG ? COL_ERROR :
+                    flags & CORRECT_BG ? COL_CORRECT : COL_BACKGROUND));
 
     /*
      * Draw the grid lines.
@@ -1940,7 +1957,7 @@ static void draw_grid(
             /*
              * Determine what we need to draw in this square.
              */
-            int i = y*w+x, v = state->board[i];
+            int i = y * w + x, v = state->board[i];
             int flags = 0;
 
             if (flashy || !shading) {
@@ -1953,25 +1970,27 @@ static void draw_grid(
                     flags |= CORRECT_BG;
                 else if (size > v)
                     flags |= ERROR_BG;
-		else {
-		    int rt = dsf_canonify(ds->dsf_scratch, i), j;
-		    for (j = 0; j < w*h; ++j) {
-			int k;
-			if (dsf_canonify(ds->dsf_scratch, j) != rt) continue;
-			for (k = 0; k < 4; ++k) {
-			    const int xx = j % w + dx[k], yy = j / w + dy[k];
-			    if (xx >= 0 && xx < w && yy >= 0 && yy < h &&
-				state->board[yy*w + xx] == EMPTY)
-				goto noflag;
-			}
-		    }
-		    flags |= ERROR_BG;
-		  noflag:
-		    ;
-		}
+                else {
+                    int rt = dsf_canonify(ds->dsf_scratch, i), j;
+                    for (j = 0; j < w * h; ++j) {
+                        int k;
+                        if (dsf_canonify(ds->dsf_scratch, j) != rt) continue;
+                        for (k = 0; k < 4; ++k) {
+                            const int xx = j % w + dx[k], yy = j / w + dy[k];
+                            if (xx >= 0 && xx < w && yy >= 0 && yy < h &&
+                                state->board[yy * w + xx] == EMPTY)
+                                goto noflag;
+                        }
+                    }
+                    flags |= ERROR_BG;
+                    noflag:;
+                }
+                if (v == ui->selected_digit) {
+                    flags |= SELECTED_DIGIT_SQ;
+                }
             }
             if (ui && ui->cur_visible && x == ui->cur_x && y == ui->cur_y)
-              flags |= CURSOR_SQ;
+                flags |= CURSOR_SQ;
 
             /*
              * Borders at the very edges of the grid are
