@@ -1639,6 +1639,7 @@ enum {
     COL_USER,
     COL_CURSOR,
     COL_SELECTED_DIGIT,
+    COL_CORRECT_AND_SELECTED_DIGIT,
     NCOLOURS
 };
 
@@ -1685,6 +1686,10 @@ static float *game_colours(frontend *fe, int *ncolours) {
     ret[COL_SELECTED_DIGIT * 3 + 0] = 1.0F * ret[COL_BACKGROUND * 3 + 0];
     ret[COL_SELECTED_DIGIT * 3 + 1] = 1.0F * ret[COL_BACKGROUND * 3 + 1];
     ret[COL_SELECTED_DIGIT * 3 + 2] = 0.0F * ret[COL_BACKGROUND * 3 + 2];
+
+    ret[COL_CORRECT_AND_SELECTED_DIGIT * 3 + 0] = 0.7F * ret[COL_BACKGROUND * 3 + 0];
+    ret[COL_CORRECT_AND_SELECTED_DIGIT * 3 + 1] = 1.0F * ret[COL_BACKGROUND * 3 + 1];
+    ret[COL_CORRECT_AND_SELECTED_DIGIT * 3 + 2] = 0.0F * ret[COL_BACKGROUND * 3 + 2];
 
     *ncolours = NCOLOURS;
     return ret;
@@ -1750,6 +1755,7 @@ static void draw_square(drawing *dr, game_drawstate *ds, int x, int y,
               TILE_SIZE,
               TILE_SIZE,
               (
+                      (flags & SELECTED_DIGIT_SQ && flags & CORRECT_BG) ? COL_CORRECT_AND_SELECTED_DIGIT :
                       flags & SELECTED_DIGIT_SQ ? COL_SELECTED_DIGIT :
                       flags & HIGH_BG ? COL_HIGHLIGHT :
                       flags & ERROR_BG ? COL_ERROR :
