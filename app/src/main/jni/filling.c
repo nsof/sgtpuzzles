@@ -1666,25 +1666,25 @@ static float *game_colours(frontend *fe, int *ncolours) {
     ret[COL_HIGHLIGHT * 3 + 1] = 0.7F * ret[COL_BACKGROUND * 3 + 1];
     ret[COL_HIGHLIGHT * 3 + 2] = 0.7F * ret[COL_BACKGROUND * 3 + 2];
 
-    ret[COL_CORRECT * 3 + 0] = 0.9F * ret[COL_BACKGROUND * 3 + 0];
+    ret[COL_CORRECT * 3 + 0] = 0.1F * ret[COL_BACKGROUND * 3 + 0];
     ret[COL_CORRECT * 3 + 1] = 0.9F * ret[COL_BACKGROUND * 3 + 1];
-    ret[COL_CORRECT * 3 + 2] = 0.9F * ret[COL_BACKGROUND * 3 + 2];
+    ret[COL_CORRECT * 3 + 2] = 0.1F * ret[COL_BACKGROUND * 3 + 2];
 
     ret[COL_CURSOR * 3 + 0] = 0.5F * ret[COL_BACKGROUND * 3 + 0];
     ret[COL_CURSOR * 3 + 1] = 0.5F * ret[COL_BACKGROUND * 3 + 1];
     ret[COL_CURSOR * 3 + 2] = 0.5F * ret[COL_BACKGROUND * 3 + 2];
 
     ret[COL_ERROR * 3 + 0] = 1.0F;
-    ret[COL_ERROR * 3 + 1] = 0.85F * ret[COL_BACKGROUND * 3 + 1];
-    ret[COL_ERROR * 3 + 2] = 0.85F * ret[COL_BACKGROUND * 3 + 2];
+    ret[COL_ERROR * 3 + 1] = 0.3F * ret[COL_BACKGROUND * 3 + 1];
+    ret[COL_ERROR * 3 + 2] = 0.1F * ret[COL_BACKGROUND * 3 + 2];
 
     ret[COL_USER * 3 + 0] = 0.0F;
     ret[COL_USER * 3 + 1] = 0.6F * ret[COL_BACKGROUND * 3 + 1];
     ret[COL_USER * 3 + 2] = 0.0F;
 
-    ret[COL_SELECTED_DIGIT * 3 + 0] = 0.8F * ret[COL_BACKGROUND * 3 + 0];
-    ret[COL_SELECTED_DIGIT * 3 + 1] = 0.8F * ret[COL_BACKGROUND * 3 + 1];
-    ret[COL_SELECTED_DIGIT * 3 + 2] = 1.0F * ret[COL_BACKGROUND * 3 + 2];
+    ret[COL_SELECTED_DIGIT * 3 + 0] = 1.0F * ret[COL_BACKGROUND * 3 + 0];
+    ret[COL_SELECTED_DIGIT * 3 + 1] = 1.0F * ret[COL_BACKGROUND * 3 + 1];
+    ret[COL_SELECTED_DIGIT * 3 + 2] = 0.0F * ret[COL_BACKGROUND * 3 + 2];
 
     *ncolours = NCOLOURS;
     return ret;
